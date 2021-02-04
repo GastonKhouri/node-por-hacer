@@ -1,15 +1,26 @@
 {
-  "name": "04-por-hacer",
+  "name": "04-tareas-hacer",
   "version": "1.0.0",
-  "description": "",
+  "description": "Esta es una aplicacion para agregar, actualizar, listar y borrar tareas",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GastonKhouri/node-por-hacer.git"
+  },
+  "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GastonKhouri/node-por-hacer/issues"
+  },
+  "homepage": "https://github.com/GastonKhouri/node-por-hacer#readme",
   "dependencies": {
     "colors": "^1.4.0",
-    "yargs": "^16.2.0"
+    "inquirer": "^7.3.3",
+    "requirer": "0.0.4",
+    "uuid": "^8.3.2"
   }
 }

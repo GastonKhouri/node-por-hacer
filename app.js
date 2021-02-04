@@ -1,39 +1,68 @@
-const argv = require("./config/yargs").argv;
-const porHacer = require('./por-hacer/por-hacer');
-const colors = require('colors');
+require('colors');
 
-let comando = argv._[0];
+const { guardarDB, leerDB } = require('./helpers/guardarArchivo');
+const { inquirerMenu, pausa, leerInput, listadoTareasBorrar, confirmar, mostrarListadoChecklist } = require('./helpers/inquirer');
+const Tareas = require('./models/tareas');
 
-switch (comando) {
-    case 'crear':
-        let tarea = porHacer.crear(argv.descripcion);
-        console.log(tarea);
-        break;
+// const { mostrarMenu, pausa } = require('./helpers/mensajes')
 
-    case 'listar':
-        let listado = porHacer.getListado();
+const main = async() => {
 
-        for (let tarea of listado) {
-            console.log('\n');
-            console.log('========= Por hacer ======='.green);
-            console.log(tarea.descripcion);
-            console.log('Estado: ', tarea.completado);
-            console.log('==========================='.green);
+    let opt = '';
+    const tareas = new Tareas();
+
+    const tareasDB = leerDB();
+
+    if (tareasDB) {
+        tareas.cargarTareasFromArray(tareasDB);
+    }
+
+    do {
+        // Imprimir menu
+        opt = await inquirerMenu();
+
+        switch (opt) {
+
+            case '1': // Crear tarea
+                const desc = await leerInput('Descripción:');
+                tareas.crearTarea(desc);
+                break;
+
+            case '2': // Listar tarea
+                tareas.listadoCompleto();
+                break;
+
+            case '3': // Listar completadas
+                tareas.listarPendientesCompletadas();
+                break;
+
+            case '4': // Listar pendientes
+                tareas.listarPendientesCompletadas(false);
+                break;
+
+            case '5': // Marcar completado | pendiente
+                const ids = await mostrarListadoChecklist(tareas.listadoArr);
+                tareas.toggleCompletadas(ids);
+                break;
+
+            case '6': // Borrar tareas
+                const id = await listadoTareasBorrar(tareas.listadoArr);
+                if (id !== '0') {
+                    const ok = await confirmar('¿Estás seguro?');
+                    if (ok) {
+                        tareas.borrarTarea(id);
+                        console.log('Tarea borrada');
+                    }
+                }
+                break;
         }
 
-        break;
+        guardarDB(tareas.listadoArr);
 
-    case 'actualizar':
-        let actualizado = porHacer.actualizar(argv.descripcion, argv.completado);
-        console.log(actualizado);
-        break;
+        await pausa();
 
-    case 'borrar':
-        let borrado = porHacer.borrar(argv.descripcion);
-        console.log(borrado);
-        break;
+    } while (opt !== '0');
 
-    default:
-        console.log('Comando no es reconocido');
-        break;
 }
+
+main();
